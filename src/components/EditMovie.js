@@ -5,6 +5,8 @@ import TextArea from "./form-components/TextArea";
 import Select from "./form-components/Select";
 import Alert from "./ui-components/Alert";
 import {Link} from "react-router-dom";
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 export default class EditMovie extends Component {
     constructor(props) {
@@ -56,7 +58,7 @@ export default class EditMovie extends Component {
 
         const data = new FormData(evt.target);
         const payload = Object.fromEntries(data.entries());
-        console.log(payload);
+        // console.log(payload);
 
         const requestOptions = {
             method: "POST",
@@ -71,9 +73,11 @@ export default class EditMovie extends Component {
                         alert: { type: "alert-danger", message: data.error.message },
                     });
                 } else {
-                    this.setState({
-                        alert: { type: "alert-success", message: "Changes saved!" },
-                    });
+                    this.props.history.push({
+                        alert: { type: "alert-success", message: "Record successfully updated" },
+                        pathname:"/admin",
+
+                    })
                 }
             });
     };
@@ -107,7 +111,6 @@ export default class EditMovie extends Component {
                 })
                 .then((json) => {
                     const releaseDate = new Date(json.movie.release_date);
-
                     this.setState(
                         {
                             movie: {
@@ -134,8 +137,36 @@ export default class EditMovie extends Component {
         }
     }
 
-    confirmDelete = (e)=>{
-        console.log("would delete movie id", this.state.movie.id)
+    confirmDelete = (e) => {
+        confirmAlert({
+            title: 'Delete Movie?',
+            message: 'Are you sure?',
+            buttons: [
+                {
+                    label: 'Yes',
+                    onClick: () => {
+                        fetch("http://localhost:4000/v1/admin/deletemovie/" + this.state.movie.id, {method: "GET"})
+                            .then(response => response.json)
+                            .then(data => {
+                                if (data.error) {
+                                    this.setState({
+                                        alert: {type: "alert-danger", message: data.error.message}
+                                    })
+                                } else {
+                                    this.props.history.push({
+                                        pathname: "/admin",
+                                    })
+
+                                }
+                            })
+                    }
+                },
+                {
+                    label: 'No',
+                    onClick: () => {}
+                }
+            ]
+        });
     }
 
     render() {
