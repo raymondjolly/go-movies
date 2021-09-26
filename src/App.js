@@ -1,40 +1,41 @@
-import React, {Component, Fragment} from "react";
-import {BrowserRouter as Router, Switch, Route, Link} from 'react-router-dom';
-import Movies from './components/Movies';
-import Admin from './components/Admin';
-import Home from './components/Home';
-import OneMovie from './components/OneMovie';
-import Genres from './components/Genres';
+import React, { Component, Fragment } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import Movies from "./components/Movies";
+import Admin from "./components/Admin";
+import Home from "./components/Home";
+import OneMovie from "./components/OneMovie";
+import Genres from "./components/Genres";
 import OneGenre from "./components/OneGenre";
 import EditMovie from "./components/EditMovie";
 import Login from "./components/Login";
 
-
 export default class App extends Component {
-
     constructor(props) {
         super(props);
-        this.state={
-            jwt:"",
-        }
-        this.handleJWTChange(this.handleJWTChange.bind(this))
+        this.state = {
+            jwt: "",
+        };
+        this.handleJWTChange(this.handleJWTChange.bind(this));
     }
 
-    handleJWTChange = (jwt)=>{
-        this.setState({jwt:jwt});
-    }
+    handleJWTChange = (jwt) => {
+        this.setState({ jwt: jwt });
+    };
 
-    logout = ()=>{
-        this.setState({jwt:""});
-    }
+    logout = () => {
+        this.setState({ jwt: "" });
+    };
 
     render() {
-        let logInLink;
-        if(this.state.jwt===""){
-            logInLink = <Link to="/login">Log In</Link>
-        }
-        else{
-                logInLink = <Link to="/logout" onClick={this.logout}>Log Out</Link>
+        let loginLink;
+        if (this.state.jwt === "") {
+            loginLink = <Link to="/login">Login</Link>;
+        } else {
+            loginLink = (
+                <Link to="/logout" onClick={this.logout}>
+                    Logout
+                </Link>
+            );
         }
 
         return (
@@ -44,9 +45,7 @@ export default class App extends Component {
                         <div className="col mt-3">
                             <h1 className="mt-3">Go Watch a Movie!</h1>
                         </div>
-                        <div className="col mt-3 text-end">
-                            {logInLink}
-                        </div>
+                        <div className="col mt-3 text-end">{loginLink}</div>
                         <hr className="mb-3"></hr>
                     </div>
 
@@ -63,17 +62,18 @@ export default class App extends Component {
                                     <li className="list-group-item">
                                         <Link to="/genres">Genres</Link>
                                     </li>
-                                    {this.state.jwt!=="" &&
-                                    <Fragment>
-                                        <li className="list-group-item">
-                                            <Link to="/admin/movie/0">Add Movie</Link>
-                                        </li>
-                                        <li className="list-group-item">
-                                            <Link to="/admin">Manage Catalogue</Link>
-                                        </li>
-                                    </Fragment>
-                                    }
+                                    {this.state.jwt !== "" && (
+                                        <Fragment>
+                                            <li className="list-group-item">
+                                                <Link to="/admin/movie/0">Add movie</Link>
+                                            </li>
+                                            <li className="list-group-item">
+                                                <Link to="/admin">Manage Catalogue</Link>
+                                            </li>
+                                        </Fragment>
+                                    )}
                                 </ul>
+                                <pre>{JSON.stringify(this.state, null, 3)}</pre>
                             </nav>
                         </div>
 
@@ -84,17 +84,34 @@ export default class App extends Component {
                                 <Route path="/movies">
                                     <Movies />
                                 </Route>
+
                                 <Route path="/genre/:id" component={OneGenre} />
-                                <Route exact path="/login" component={(props)=> <Login{...props} handleJWTChange={this.handleJWTChange} />}/>
+
+                                <Route
+                                    exact
+                                    path="/login"
+                                    component={(props) => (
+                                        <Login {...props} handleJWTChange={this.handleJWTChange} />
+                                    )}
+                                />
 
                                 <Route exact path="/genres">
                                     <Genres />
                                 </Route>
 
-                                <Route path="/admin/movie/:id" component={EditMovie} />
-                                <Route path="/admin">
-                                    <Admin />
-                                </Route>
+                                <Route
+                                    path="/admin/movie/:id"
+                                    component={(props) => (
+                                        <EditMovie {...props} jwt={this.state.jwt} />
+                                    )}
+                                />
+
+                                <Route
+                                    path="/admin"
+                                    component={(props) => (
+                                        <Admin {...props} jwt={this.state.jwt} />
+                                    )}
+                                />
                                 <Route path="/">
                                     <Home />
                                 </Route>
